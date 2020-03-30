@@ -2,8 +2,8 @@ import re
 import sys
 import time
 import errno
-import multiprocessing
 import logging
+import multiprocessing
 
 from xopen import xopen
 import dnaio
@@ -190,6 +190,7 @@ class FileOpener:
             f = self.dnaio_open(path, mode="w", qualities=qualities)
         except OSError as e:
             if e.errno == errno.EMFILE:  # Too many open files
+                logger.debug("Too many open files, attempting to raise soft limit")
                 raise_open_files_limit(8)
                 f = self.dnaio_open(path, mode="w", qualities=qualities)
             else:

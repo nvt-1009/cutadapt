@@ -5,6 +5,7 @@ cache:
     - $HOME/.cache/pip
 
 install:
+#  - if [ $TRAVIS_OS_NAME = osx ]; then brew install ; fi
   - pip install tox
 
 script:
@@ -33,6 +34,15 @@ jobs:
 
     - python: "3.8"
       env: TOXENV=py38
+
+    - name: "macOS"
+      os: osx
+      language: shell
+      #osx_image: xcode11.2
+      addons:
+        homebrew:
+          packages: python3
+      env: TOXENV=py37
 
     - name: flake8
       python: "3.6"
