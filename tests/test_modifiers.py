@@ -3,7 +3,8 @@ import pytest
 from dnaio import Sequence
 from cutadapt.adapters import BackAdapter, PrefixAdapter, IndexedPrefixAdapters
 from cutadapt.modifiers import (UnconditionalCutter, NEndTrimmer, QualityTrimmer,
-    Shortener, AdapterCutter, PairedAdapterCutter, ModificationInfo, ZeroCapper)
+    Shortener, AdapterCutter, PairedAdapterCutter, ModificationInfo, ZeroCapper,
+    Renamer)
 
 
 def test_unconditional_cutter():
@@ -101,3 +102,29 @@ def test_paired_adapter_cutter_actions(action, expected_trimmed1, expected_trimm
     trimmed1, trimmed2 = pac(s1, s2, info1, info2)
     assert expected_trimmed1 == trimmed1.sequence
     assert expected_trimmed2 == trimmed2.sequence
+
+
+class TestRenamer:
+    def test_header_template_variable(self):
+        renamer = Renamer("{header} extra")
+        read = Sequence("theid thecomment", "ACGT")
+        info = ModificationInfo(read)
+        assert renamer(read, info).name == "theid thecomment extra"
+
+    def test_id_template_variable(self):
+        renamer = Renamer("{id} extra")
+        read = Sequence("theid thecomment", "ACGT")
+        info = ModificationInfo(read)
+        assert renamer(read, info).name == "theid extra"
+
+    def test_comment_template_variable(self):
+        renamer = Renamer("{id}_extra {comment}")
+        read = Sequence("theid thecomment", "ACGT")
+        info = ModificationInfo(read)
+        assert renamer(read, info).name == "theid_extra thecomment"
+
+    def test_comment_template_variable_missing_comment(self):
+        renamer = Renamer("{id}_extra {comment}")
+        read = Sequence("theid", "ACGT")
+        info = ModificationInfo(read)
+        assert renamer(read, info).name == "theid_extra "
