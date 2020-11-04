@@ -149,3 +149,10 @@ class TestRenamer:
         read = Sequence("theid", "ACGT")
         info = ModificationInfo(read)
         assert renamer(read, info).name == "theid_extra "
+
+    def test_cut_prefix_template_variable(self):
+        renamer = Renamer("{id}_{cut_prefix} {comment}")
+        read = Sequence("theid thecomment", "ACGT")
+        info = ModificationInfo(read)
+        info.cut_prefix = "TTAAGG"
+        assert renamer(read, info).name == "theid_TTAAGG thecomment"
